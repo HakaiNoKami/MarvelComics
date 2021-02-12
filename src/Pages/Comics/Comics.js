@@ -22,13 +22,20 @@ const Comics = () => {
   const [list, setList] = useState([]);
   const [rangeComics, setRangeComics] = useState({ first: 1, last: 20 });
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [form, setForm] = useState({ title: "", limit: 20, format: "", type: "", order: "" });
+  // const [page, setPage] = useState(1);
+  const [form, setForm] = useState({
+    title: "",
+    limit: 20,
+    format: "",
+    type: "",
+    order: "",
+  });
+  const [selectedComics, setSelectedComics] = useState([]);
   const [copyright, setCopyright] = useState("");
 
   const getComics = useCallback(
     (newPage) => {
-      let currentPage = newPage || page;
+      let currentPage = newPage || 1;
       let options = {
         limit: form.limit,
         offset: form.limit * (currentPage - 1),
@@ -46,13 +53,16 @@ const Comics = () => {
           if (result.code === 200) {
             setList(result.data.results);
             setCopyright(result.attributionText);
-            setRangeComics({ first: form.limit * currentPage + 1 - form.limit, last: form.limit * currentPage });
+            setRangeComics({
+              first: form.limit * currentPage + 1 - form.limit,
+              last: form.limit * currentPage,
+            });
             setTotal(result.data.total);
           } else console.log(`Code: ${result.code} - Status: ${result.status}`);
         })
         .catch((err) => console.log(err));
     },
-    [page, form]
+    [form]
   );
 
   useEffect(() => {
@@ -65,19 +75,19 @@ const Comics = () => {
 
   const handleSubmitForm = (e) => {
     e.preventDefault();
-    setPage(1);
     getComics(1);
   };
 
   const handleChangePage = (value) => {
-    setPage(value);
     getComics(value);
   };
 
   return (
     <div>
       <h1>Marvel Comics</h1>
-      <p>{`${rangeComics.first} - ${rangeComics.last > total ? total : rangeComics.last} of ${total}`}</p>
+      <p>{`${rangeComics.first} - ${
+        rangeComics.last > total ? total : rangeComics.last
+      } of ${total}`}</p>
       <Filter
         form={form}
         handleSubmitForm={handleSubmitForm}
@@ -85,7 +95,13 @@ const Comics = () => {
         handleChangePage={handleChangePage}
       />
       {list.map((item) => (
-        <CardComics info={item} key={item.id} />
+        <CardComics
+          info={item}
+          key={item.id}
+          selectedComics={selectedComics}
+          setSelectedComics={setSelectedComics}
+          marvelClient={marvelClient}
+        />
       ))}
       <p>{copyright}</p>
     </div>
