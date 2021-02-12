@@ -20,9 +20,9 @@ const marvelClient = axios.create({
 
 const Comics = () => {
   const [list, setList] = useState([]);
-  const [rangeComics, setRangeComics] = useState({ first: 1, last: 20 });
+  const [rangeComics, setRangeComics] = useState({ first: "?", last: "?" });
   const [total, setTotal] = useState(0);
-  // const [page, setPage] = useState(1);
+  const [page, setPage] = useState(1);
   const [form, setForm] = useState({
     title: "",
     limit: 20,
@@ -66,42 +66,39 @@ const Comics = () => {
   );
 
   useEffect(() => {
-    if (!list.length) getComics();
-  }, [list, getComics]);
+    setPage(1);
+    getComics(1);
+  }, [form, getComics]);
 
   const handleChangeForm = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmitForm = (e) => {
-    e.preventDefault();
-    getComics(1);
+  const handleChangePage = (event, value) => {
+    setPage(value);
+    getComics(value);
   };
 
-  const handleChangePage = (value) => {
-    getComics(value);
+  const handleSelectAllComics = (action) => {
+    action === "selectAll"
+      ? setSelectedComics([...new Set([...selectedComics, ...list])])
+      : setSelectedComics(
+          selectedComics.filter((selectedComic) => !list.some((comic) => selectedComic.id === comic.id))
+        );
   };
 
   return (
     <div>
       <h1>Marvel Comics</h1>
-      <p>{`${rangeComics.first} - ${
-        rangeComics.last > total ? total : rangeComics.last
-      } of ${total}`}</p>
+      <p>{`${rangeComics.first} - ${rangeComics.last > total ? total : rangeComics.last} of ${total}`}</p>
       <Filter
-        form={form}
-        handleSubmitForm={handleSubmitForm}
-        handleChangeForm={handleChangeForm}
-        handleChangePage={handleChangePage}
+        params={{ form, total, page }}
+        methods={{ handleSelectAllComics, handleChangeForm, handleChangePage }}
+        list={list}
+        selectedComics={selectedComics}
       />
       {list.map((item) => (
-        <CardComics
-          info={item}
-          key={item.id}
-          selectedComics={selectedComics}
-          setSelectedComics={setSelectedComics}
-          marvelClient={marvelClient}
-        />
+        <CardComics key={item.id} params={{ info: item, selectedComics }} />
       ))}
       <p>{copyright}</p>
     </div>

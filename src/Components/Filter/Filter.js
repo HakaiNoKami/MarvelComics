@@ -1,9 +1,23 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { Pagination } from "@material-ui/lab";
 
-const Filter = ({ form, handleSubmitForm, handleChangeForm, handleChangePage }) => {
+const Filter = ({ params, methods, list, selectedComics }) => {
+  const { form, total, page } = params;
+  const { handleChangeForm, handleChangePage, handleSelectAllComics } = methods;
+
+  const [check, setCheck] = useState(false);
+
+  useEffect(() => {
+    setCheck(
+      list.length &&
+        list.filter((comic) => selectedComics.find((selectedComic) => selectedComic.id === comic.id)).length ===
+          list.length
+    );
+  }, [list, selectedComics]);
+
   return (
     <div>
-      <form onSubmit={handleSubmitForm}>
+      <form>
         <input name="title" value={form.title} placeholder="Title" onChange={handleChangeForm} />
         <select name="limit" defaultValue={20} onChange={handleChangeForm}>
           <option value={20}>20</option>
@@ -38,9 +52,16 @@ const Filter = ({ form, handleSubmitForm, handleChangeForm, handleChangePage }) 
           <option value="modified">Modified</option>
           <option value="-modified">-Modified</option>
         </select>
-        <button type="submit">filter</button>
       </form>
-      <button onClick={() => handleChangePage(1)}>1</button>
+      <Pagination count={Math.ceil(total / form.limit)} page={page} onChange={handleChangePage} />
+      <label>
+        <input
+          type="checkbox"
+          checked={check}
+          onChange={() => handleSelectAllComics(check ? "desselectAll" : "selectAll")}
+        />
+        <span>Select all comics</span>
+      </label>
     </div>
   );
 };
