@@ -3,7 +3,7 @@ import { BrowserRouter, Switch, Route } from "react-router-dom";
 import Comics from "../Pages/Comics/Comics";
 import "./App.scss";
 
-const App = () => {
+function App() {
   return (
     <BrowserRouter>
       <Switch>
@@ -11,6 +11,6 @@ const App = () => {
       </Switch>
     </BrowserRouter>
   );
-};
+}
 
 export default App;

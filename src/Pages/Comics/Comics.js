@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import moment from "moment";
+import CardComics from "../../Components/CardComics/CardComics";
+import Filter from "../../Components/Filter/Filter";
 import "./Comics.scss";
 
 document.title = "Marvel Comics";
@@ -19,41 +20,74 @@ const marvelClient = axios.create({
 
 const Comics = () => {
   const [list, setList] = useState([]);
+  const [rangeComics, setRangeComics] = useState({ first: 1, last: 20 });
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [form, setForm] = useState({ title: "", limit: 20, format: "", type: "", order: "" });
+  const [copyright, setCopyright] = useState("");
+
+  const getComics = useCallback(
+    (newPage) => {
+      let currentPage = newPage || page;
+      let options = {
+        limit: form.limit,
+        offset: form.limit * (currentPage - 1),
+      };
+      if (form.title) options.titleStartsWith = form.title;
+      if (form.format) options.format = form.format;
+      if (form.type) options.formatType = form.type;
+      if (form.order) options.orderBy = form.order;
+      marvelClient
+        .get("comics", {
+          params: options,
+        })
+        .then((response) => {
+          let result = response.data;
+          if (result.code === 200) {
+            setList(result.data.results);
+            setCopyright(result.attributionText);
+            setRangeComics({ first: form.limit * currentPage + 1 - form.limit, last: form.limit * currentPage });
+            setTotal(result.data.total);
+          } else console.log(`Code: ${result.code} - Status: ${result.status}`);
+        })
+        .catch((err) => console.log(err));
+    },
+    [page, form]
+  );
 
   useEffect(() => {
-    if (list.length) {
-      console.log(list);
-      return;
-    }
+    if (!list.length) getComics();
+  }, [list, getComics]);
 
-    marvelClient
-      .get("comics", {
-        params: {
-          limit: 20,
-        },
-      })
-      .then((response) => {
-        let result = response.data;
-        if (result.code === 200) setList(result.data.results);
-        else console.log(`Code: ${result.code} - Status: ${result.status}`);
-      })
-      .catch((err) => console.log(err));
-  }, [list]);
+  const handleChangeForm = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmitForm = (e) => {
+    e.preventDefault();
+    setPage(1);
+    getComics(1);
+  };
+
+  const handleChangePage = (value) => {
+    setPage(value);
+    getComics(value);
+  };
 
   return (
     <div>
       <h1>Marvel Comics</h1>
-      {list.forEach((item) => {
-        <div key={item.id}>
-          <h4>{item.title}</h4>
-          <img
-            alt={item.title}
-            src={`${item.thumbnail.path}.${item.thumbnail.extension}`}
-          />
-          <p>Description: {item.description}</p>
-          <p>Modified: {moment(item.modified, "MM-DD-YYYY", true)}</p>
-        </div>;
-      })}
+      <p>{`${rangeComics.first} - ${rangeComics.last > total ? total : rangeComics.last} of ${total}`}</p>
+      <Filter
+        form={form}
+        handleSubmitForm={handleSubmitForm}
+        handleChangeForm={handleChangeForm}
+        handleChangePage={handleChangePage}
+      />
+      {list.map((item) => (
+        <CardComics info={item} key={item.id} />
+      ))}
+      <p>{copyright}</p>
     </div>
   );
 };
