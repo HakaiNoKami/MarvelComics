@@ -65,6 +65,13 @@ const Comics = () => {
     [form]
   );
 
+  const sendEmail = async (mail) => {
+    return await axios
+      .post("http://localhost:3001", { mail, comics: selectedComics })
+      .then((resp) => resp.data)
+      .catch((err) => err.message);
+  };
+
   useEffect(() => {
     setPage(1);
     getComics(1);
@@ -87,6 +94,14 @@ const Comics = () => {
         );
   };
 
+  const handleClickSendComics = async () => {
+    if (selectedComics.length) {
+      let response = await sendEmail("mhfgmv@gmail.com");
+      alert(response.success ? "Success!" : response.message);
+      setSelectedComics([]);
+    } else alert("Select some comic!");
+  };
+
   return (
     <div>
       <h1>Marvel Comics</h1>
@@ -97,6 +112,7 @@ const Comics = () => {
         list={list}
         selectedComics={selectedComics}
       />
+      <button onClick={handleClickSendComics}>Send all selected comics to email</button>
       {list.map((item) => (
         <CardComics key={item.id} params={{ info: item, selectedComics }} />
       ))}
