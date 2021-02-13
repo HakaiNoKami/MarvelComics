@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import { bindActionCreators } from "redux";
+import { connect, useDispatch } from "react-redux";
+import * as comicsActions from "../../Actions/Comics.Action";
+// import * as selectedComicsActions from "../../Actions/SelectedComics.Action";
+import { getListComics } from "../../FetchActions/Comics.Fetch";
 import CardComics from "../../Components/CardComics/CardComics";
 import Filter from "../../Components/Filter/Filter";
 import Pagination from "../../Components/Pagination/Pagination";
@@ -8,25 +12,14 @@ import "./Comics.scss";
 
 // Icons
 import SendIcon from "@material-ui/icons/Send";
+import {
+  addSelectedComics,
+  clearSelectedComics,
+} from "../../Constants/Comics.Constant";
 
 document.title = "Marvel Comics";
 
-const marvelClient = axios.create({
-  baseURL: process.env.REACT_APP_BASE_URL,
-  headers: {
-    common: {
-      "Content-Type": "application/json; charset=utf-8",
-    },
-  },
-  params: {
-    apikey: process.env.REACT_APP_API_KEY,
-  },
-});
-
-const Comics = () => {
-  const [list, setList] = useState([]);
-  const [rangeComics, setRangeComics] = useState({ first: "?", last: "?" });
-  const [total, setTotal] = useState(0);
+const Comics = ({list, copyright, rangeComics, total}) => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(25);
   const [form, setForm] = useState({
@@ -35,8 +28,7 @@ const Comics = () => {
     type: "all",
     order: "all",
   });
-  const [selectedComics, setSelectedComics] = useState([]);
-  const [copyright, setCopyright] = useState("");
+  const dispatch = useDispatch();
 
   const getComics = useCallback(
     (newPage) => {
@@ -49,33 +41,17 @@ const Comics = () => {
       if (form.format !== "all") options.format = form.format;
       if (form.type !== "all") options.formatType = form.type;
       if (form.order !== "all") options.orderBy = form.order;
-      marvelClient
-        .get("comics", {
-          params: options,
-        })
-        .then((response) => {
-          let result = response.data;
-          if (result.code === 200) {
-            setList(result.data.results);
-            setCopyright(result.attributionText);
-            setRangeComics({
-              first: limit * currentPage + 1 - limit,
-              last: limit * currentPage,
-            });
-            setTotal(result.data.total);
-          } else console.log(`Code: ${result.code} - Status: ${result.status}`);
-        })
-        .catch((err) => console.log(err));
+      dispatch(getListComics({ params: options }, currentPage, limit));
     },
-    [form, limit]
+    [form, limit, dispatch]
   );
 
-  const sendEmail = async (mail) => {
-    return await axios
-      .post("http://localhost:3001", { mail, comics: selectedComics })
-      .then((resp) => resp.data)
-      .catch((err) => err.message);
-  };
+  // const sendEmail = async (mail) => {
+  //   return await axios
+  //     .post("http://localhost:3001", { mail, comics: selectedComics })
+  //     .then((resp) => resp.data)
+  //     .catch((err) => err.message);
+  // };
 
   useEffect(() => {
     setPage(1);
@@ -98,18 +74,16 @@ const Comics = () => {
 
   const handleSelectAllComics = (action) => {
     action === "selectAll"
-      ? setSelectedComics([...new Set([...selectedComics, ...list])])
-      : setSelectedComics(
-          selectedComics.filter((selectedComic) => !list.some((comic) => selectedComic.id === comic.id))
-        );
+      ? addSelectedComics(list)
+      : clearSelectedComics(list);
   };
 
   const handleClickSendComics = async () => {
-    if (selectedComics.length) {
-      let response = await sendEmail("mhfgmv@gmail.com");
-      alert(response.success ? "Success!" : response.message);
-      setSelectedComics([]);
-    } else alert("Select some comic!");
+    // if (selectedComics.length) {
+    //   let response = await sendEmail("mhfgmv@gmail.com");
+    //   alert(response.success ? "Success!" : response.message);
+    //   clearSelectedComics();
+    // } else alert("Select some comic!");
   };
 
   return (
@@ -127,11 +101,15 @@ const Comics = () => {
           params={{ form }}
           methods={{ handleSelectAllComics, handleChangeForm }}
           list={list}
-          selectedComics={selectedComics}
         />
-        <Grid container spacing={2} justify="space-evenly" alignItems="flex-start">
+        <Grid
+          container
+          spacing={2}
+          justify="space-evenly"
+          alignItems="flex-start"
+        >
           {list.map((item) => (
-            <CardComics key={item.id} params={{ info: item, selectedComics }} />
+            <CardComics key={item.id} params={{ info: item }} />
           ))}
         </Grid>
         <Fab
@@ -145,7 +123,10 @@ const Comics = () => {
             To email
           </Typography>
         </Fab>
-        <Pagination params={{ total, page, limit, rangeComics }} methods={{ handleChangePage, handleChangeLimit }} />
+        <Pagination
+          params={{ total, page, limit, rangeComics }}
+          methods={{ handleChangePage, handleChangeLimit }}
+        />
         <Typography variant="caption" align="center" component="p">
           {copyright}
         </Typography>
@@ -154,4 +135,15 @@ const Comics = () => {
   );
 };
 
-export default Comics;
+const mapStateToProps = (state) => ({
+  list: state.comics.list,
+  selectedComics: state.comics.selectedComics,
+  copyright: state.comics.copyright,
+  rangeComics: state.comics.rangeComics,
+  total: state.comics.total,
+});
+
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators({ ...comicsActions }, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(Comics);

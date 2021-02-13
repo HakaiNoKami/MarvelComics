@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
+import * as comicsActions from "../../Actions/Comics.Action";
 import {
   Grid,
   Card,
@@ -10,11 +13,15 @@ import {
   FormControlLabel,
   Checkbox,
   Button,
+  Modal,
 } from "@material-ui/core";
+import ComicModel from "../ComicModel/ComicModel";
+import { addSelectedComics } from "../../Constants/Comics.Constant";
 
-const CardComics = ({ params }) => {
-  const { info, selectedComics } = params;
+const CardComics = ({ params, selectedComics, removeSelectedComics }) => {
+  const { info } = params;
   const [check, setCheck] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     setCheck(selectedComics.some((item) => item.id === info.id));
@@ -22,16 +29,13 @@ const CardComics = ({ params }) => {
 
   const handleChangeCheck = () => {
     selectedComics.some((item) => item.id === info.id)
-      ? selectedComics.splice(
-          selectedComics.findIndex((item) => item.id === info.id),
-          1
-        )
-      : selectedComics.push(info);
+      ? addSelectedComics([info])
+      : removeSelectedComics([info]);
     setCheck(!check);
   };
 
-  const handleClickMore = () => {
-    console.log(info);
+  const handleChangeModel = () => {
+    setOpen(!open);
   };
 
   return (
@@ -43,7 +47,7 @@ const CardComics = ({ params }) => {
             image={`${info.thumbnail.path}.${info.thumbnail.extension}`}
             title={info.title}
           />
-          <CardContent style={{height: "170px"}}>
+          <CardContent style={{ height: "170px" }}>
             <div
               style={{
                 overflow: "hidden",
@@ -51,44 +55,79 @@ const CardComics = ({ params }) => {
                 display: "-webkit-box",
                 WebkitLineClamp: "2",
                 WebkitBoxOrient: "vertical",
-                marginBottom: "8px"
+                marginBottom: "8px",
               }}
             >
-              <Typography gutterBottom variant="h5" component="h2" title={info.title}>
+              <Typography
+                gutterBottom
+                variant="h5"
+                component="h2"
+                title={info.title}
+              >
                 {info.title}
               </Typography>
             </div>
-            <div
-              style={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                display: "-webkit-box",
-                WebkitLineClamp: "5",
-                WebkitBoxOrient: "vertical",
-              }}
-            >
-              <Typography variant="body2" color="textSecondary" component="p" title={info.description || "..."}>
-                {info.description || "..."}
-              </Typography>
-            </div>
+            {info.description && (
+              <div
+                style={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  display: "-webkit-box",
+                  WebkitLineClamp: "5",
+                  WebkitBoxOrient: "vertical",
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  color="textSecondary"
+                  component="p"
+                  title={info.description}
+                >
+                  {info.description}
+                </Typography>
+              </div>
+            )}
           </CardContent>
         </CardActionArea>
         <CardActions>
           <FormControlLabel
-            control={<Checkbox checked={check} onChange={handleChangeCheck} color="primary" />}
+            control={
+              <Checkbox
+                checked={check}
+                onChange={handleChangeCheck}
+                color="primary"
+              />
+            }
             label={
               <Typography variant="button" color="primary">
                 Select comic
               </Typography>
             }
           />
-          <Button size="small" color="primary" onClick={handleClickMore}>
+          <Button size="small" color="primary" onClick={handleChangeModel}>
             Learn More
           </Button>
         </CardActions>
       </Card>
+      <Modal
+        open={open}
+        onClose={handleChangeModel}
+        aria-labelledby="comic-model-title"
+        aria-describedby="comic-model-description"
+      >
+        <>
+          <ComicModel comic={info} close={handleChangeModel} />
+        </>
+      </Modal>
     </Grid>
   );
 };
 
-export default CardComics;
+const mapStateToProps = (state) => ({
+  selectedComics: state.comics.selectedComics,
+});
+
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators(comicsActions, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(CardComics);
