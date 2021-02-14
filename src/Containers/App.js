@@ -21,7 +21,7 @@ function App() {
       <MuiThemeProvider theme={theme}>
         <BrowserRouter>
           <Switch>
-            <Route path="/MarvelComics" exact={true} component={Comics} />
+            <Route path="/" exact={true} component={Comics} />
           </Switch>
         </BrowserRouter>
       </MuiThemeProvider>
