@@ -8,7 +8,7 @@ const initalState = {
   total: 0,
 };
 
-export default function comics(state=initalState, action) {
+export default function comics(state = initalState, action) {
   switch (action.type) {
     case comicsConstants.setList:
       return { ...state, list: action.list };
@@ -22,12 +22,14 @@ export default function comics(state=initalState, action) {
     case comicsConstants.addSelectedComics:
       return {
         ...state,
-        selectedComics: [...new Set([...state, ...action.comics])],
+        selectedComics: [
+          ...new Set([...state.selectedComics, ...action.comics]),
+        ],
       };
     case comicsConstants.removeSelectedComics:
       return {
         ...state,
-        selectedComics: state.filter(
+        selectedComics: state.selectedComics.filter(
           (selectedComic) =>
             !action.comics.some((comic) => selectedComic.id === comic.id)
         ),
@@ -40,35 +42,3 @@ export default function comics(state=initalState, action) {
       return state;
   }
 }
-
-// export default function copyright(state = "", action) {
-//   switch (action.type) {
-
-//     default:
-//       return "";
-//   }
-// }
-
-// export default function rangeComics(state = { first: "?", last: "?" }, action) {
-//   switch (action.type) {
-
-//     default:
-//       return { first: "?", last: "?" };
-//   }
-// }
-
-// export default function selectedComics(state = [], action) {
-//   switch (action.type) {
-
-//     default:
-//       return [];
-//   }
-// }
-
-// export default function total(state = 0, action) {
-//   switch (action.type) {
-
-//     default:
-//       return 0;
-//   }
-// }

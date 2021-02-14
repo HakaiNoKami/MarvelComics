@@ -1,5 +1,5 @@
 import React from "react";
-import { Paper, Grid, IconButton, Typography, Button } from "@material-ui/core";
+import { Paper, Grid, IconButton, Typography } from "@material-ui/core";
 
 // Icons
 import CloseIcon from "@material-ui/icons/Close";
@@ -80,11 +80,6 @@ const ComicModel = ({ comic, close }) => {
                       Page count: {comic.pageCount}
                     </Typography>
                   )}
-                </Grid>
-                <Grid item>
-                  <Button variant="contained" color="primary" fullWidth>
-                    Send this comic to the email
-                  </Button>
                 </Grid>
               </Grid>
             </Grid>

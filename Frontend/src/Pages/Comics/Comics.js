@@ -2,24 +2,44 @@ import React, { useState, useEffect, useCallback } from "react";
 import { bindActionCreators } from "redux";
 import { connect, useDispatch } from "react-redux";
 import * as comicsActions from "../../Actions/Comics.Action";
-// import * as selectedComicsActions from "../../Actions/SelectedComics.Action";
 import { getListComics } from "../../FetchActions/Comics.Fetch";
+import { sendComicsToMail } from "../../FetchActions/Mail.Fetch";
 import CardComics from "../../Components/CardComics/CardComics";
 import Filter from "../../Components/Filter/Filter";
 import Pagination from "../../Components/Pagination/Pagination";
-import { Fab, Typography, Container, Grid } from "@material-ui/core";
+import {
+  Fab,
+  Typography,
+  Container,
+  Grid,
+  CircularProgress,
+  Snackbar,
+} from "@material-ui/core";
 import "./Comics.scss";
+import { Alert } from "@material-ui/lab";
 
 // Icons
 import SendIcon from "@material-ui/icons/Send";
-import {
-  addSelectedComics,
-  clearSelectedComics,
-} from "../../Constants/Comics.Constant";
 
 document.title = "Marvel Comics";
 
-const Comics = ({list, copyright, rangeComics, total}) => {
+const Comics = ({
+  list,
+  selectedComics,
+  copyright,
+  rangeComics,
+  total,
+  addSelectedComics,
+  clearSelectedComics,
+  mail,
+}) => {
+  const [loading, setLoading] = useState(true);
+  const [loadingButton, setLoadingButton] = useState(true);
+  const [snackbar, setSnackbar] = useState({
+    type: "",
+    message: "",
+    status: false,
+  });
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(25);
   const [form, setForm] = useState({
@@ -32,6 +52,7 @@ const Comics = ({list, copyright, rangeComics, total}) => {
 
   const getComics = useCallback(
     (newPage) => {
+      setLoading(true);
       let currentPage = newPage || 1;
       let options = {
         limit: limit,
@@ -46,17 +67,28 @@ const Comics = ({list, copyright, rangeComics, total}) => {
     [form, limit, dispatch]
   );
 
-  // const sendEmail = async (mail) => {
-  //   return await axios
-  //     .post("http://localhost:3001", { mail, comics: selectedComics })
-  //     .then((resp) => resp.data)
-  //     .catch((err) => err.message);
-  // };
-
   useEffect(() => {
     setPage(1);
     getComics(1);
   }, [form, getComics]);
+
+  useEffect(() => {
+    if (mail.status && mail.message) clearSelectedComics();
+    else if (mail.message) console.log(mail.message);
+    if (mail.message)
+      setSnackbar({
+        type: mail.status ? "success" : "error",
+        message: mail.status
+          ? "Success sending the comics"
+          : "Error sending the comics",
+        status: true,
+      });
+    setLoadingButton(false);
+  }, [mail, clearSelectedComics]);
+
+  useEffect(() => {
+    if (list.length) setLoading(false);
+  }, [list]);
 
   const handleChangeForm = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -79,22 +111,26 @@ const Comics = ({list, copyright, rangeComics, total}) => {
   };
 
   const handleClickSendComics = async () => {
-    // if (selectedComics.length) {
-    //   let response = await sendEmail("mhfgmv@gmail.com");
-    //   alert(response.success ? "Success!" : response.message);
-    //   clearSelectedComics();
-    // } else alert("Select some comic!");
+    if (selectedComics.length) {
+      setLoadingButton(true);
+      dispatch(sendComicsToMail("mhfgmv@gmail.com", selectedComics));
+    } else
+      setSnackbar({
+        type: "warning",
+        message: "Select some comic!",
+        status: true,
+      });
   };
 
   return (
     <div>
-      <div>
-        <Container maxWidth="lg">
-          <Typography variant="h3" align="center">
-            Marvel Comics
-          </Typography>
-        </Container>
-      </div>
+      <Container maxWidth="lg" className="logo-block">
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/0/04/MarvelLogo.svg"
+          alt="Marvel Comics"
+          id="logo"
+        />
+      </Container>
 
       <Container maxWidth="lg">
         <Filter
@@ -102,35 +138,63 @@ const Comics = ({list, copyright, rangeComics, total}) => {
           methods={{ handleSelectAllComics, handleChangeForm }}
           list={list}
         />
-        <Grid
-          container
-          spacing={2}
-          justify="space-evenly"
-          alignItems="flex-start"
-        >
-          {list.map((item) => (
-            <CardComics key={item.id} params={{ info: item }} />
-          ))}
-        </Grid>
-        <Fab
-          variant="extended"
-          color="primary"
-          onClick={handleClickSendComics}
-          style={{ position: "fixed", right: "20px", bottom: "20px" }}
-        >
-          <SendIcon />
-          <Typography variant="button" style={{ marginLeft: "5px" }}>
-            To email
-          </Typography>
-        </Fab>
-        <Pagination
-          params={{ total, page, limit, rangeComics }}
-          methods={{ handleChangePage, handleChangeLimit }}
-        />
-        <Typography variant="caption" align="center" component="p">
-          {copyright}
-        </Typography>
+        {loading ? (
+          <div style={{ textAlign: "center" }}>
+            <CircularProgress />
+          </div>
+        ) : (
+          <>
+            <Grid
+              container
+              spacing={2}
+              justify="space-evenly"
+              alignItems="flex-start"
+            >
+              {list.map((item) => (
+                <CardComics key={item.id} params={{ info: item }} />
+              ))}
+            </Grid>
+            <Fab
+              variant="extended"
+              color="primary"
+              onClick={handleClickSendComics}
+              style={{ position: "fixed", right: "20px", bottom: "20px" }}
+            >
+              {loadingButton ? (
+                <CircularProgress
+                  style={{ width: "24px", height: "24px", color: "#ffffff" }}
+                />
+              ) : (
+                <SendIcon />
+              )}
+              <Typography variant="button" style={{ marginLeft: "5px" }}>
+                To email
+              </Typography>
+            </Fab>
+            <Pagination
+              params={{ total, page, limit, rangeComics }}
+              methods={{ handleChangePage, handleChangeLimit }}
+            />
+            <Typography variant="caption" align="center" component="p">
+              {copyright}
+            </Typography>
+          </>
+        )}
       </Container>
+      <Snackbar
+        open={snackbar.status}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, status: false })}
+      >
+        <Alert
+          elevation={6}
+          variant="filled"
+          severity={snackbar.type}
+          onClose={() => setSnackbar({ ...snackbar, status: false })}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
@@ -141,9 +205,10 @@ const mapStateToProps = (state) => ({
   copyright: state.comics.copyright,
   rangeComics: state.comics.rangeComics,
   total: state.comics.total,
+  mail: state.mail,
 });
 
 const mapDispatchToProps = (dispatch) =>
-  bindActionCreators({ ...comicsActions }, dispatch);
+  bindActionCreators(comicsActions, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(Comics);

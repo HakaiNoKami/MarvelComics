@@ -16,9 +16,13 @@ import {
   Modal,
 } from "@material-ui/core";
 import ComicModel from "../ComicModel/ComicModel";
-import { addSelectedComics } from "../../Constants/Comics.Constant";
 
-const CardComics = ({ params, selectedComics, removeSelectedComics }) => {
+const CardComics = ({
+  params,
+  selectedComics,
+  removeSelectedComics,
+  addSelectedComics,
+}) => {
   const { info } = params;
   const [check, setCheck] = useState(false);
   const [open, setOpen] = useState(false);
@@ -29,8 +33,8 @@ const CardComics = ({ params, selectedComics, removeSelectedComics }) => {
 
   const handleChangeCheck = () => {
     selectedComics.some((item) => item.id === info.id)
-      ? addSelectedComics([info])
-      : removeSelectedComics([info]);
+      ? removeSelectedComics([info])
+      : addSelectedComics([info]);
     setCheck(!check);
   };
 
