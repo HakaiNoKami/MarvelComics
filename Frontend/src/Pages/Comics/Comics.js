@@ -14,12 +14,22 @@ import {
   Grid,
   CircularProgress,
   Snackbar,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  TextField,
+  Button,
 } from "@material-ui/core";
 import "./Comics.scss";
 import { Alert } from "@material-ui/lab";
 
 // Icons
 import SendIcon from "@material-ui/icons/Send";
+
+// Images
+import logo from "../../Images/marvel.svg";
 
 document.title = "Marvel Comics";
 
@@ -40,6 +50,7 @@ const Comics = ({
     message: "",
     status: false,
   });
+  const [dialogMail, setDialogMail] = useState({ mail: "", status: false });
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(25);
   const [form, setForm] = useState({
@@ -78,9 +89,7 @@ const Comics = ({
     if (mail.message)
       setSnackbar({
         type: mail.status ? "success" : "error",
-        message: mail.status
-          ? "Success sending the comics"
-          : "Error sending the comics",
+        message: mail.status ? "Success sending the comics" : "Error sending the comics",
         status: true,
       });
     setLoadingButton(false);
@@ -105,15 +114,13 @@ const Comics = ({
   };
 
   const handleSelectAllComics = (action) => {
-    action === "selectAll"
-      ? addSelectedComics(list)
-      : clearSelectedComics(list);
+    action === "selectAll" ? addSelectedComics(list) : clearSelectedComics(list);
   };
 
-  const handleClickSendComics = async () => {
+  const handleClickSendComics = () => {
     if (selectedComics.length) {
       setLoadingButton(true);
-      dispatch(sendComicsToMail("mhfgmv@gmail.com", selectedComics));
+      setDialogMail({ ...dialogMail, status: true });
     } else
       setSnackbar({
         type: "warning",
@@ -122,65 +129,59 @@ const Comics = ({
       });
   };
 
-  return (
-    <div>
-      <Container maxWidth="lg" className="logo-block">
-        <img
-          src="https://upload.wikimedia.org/wikipedia/commons/0/04/MarvelLogo.svg"
-          alt="Marvel Comics"
-          id="logo"
-        />
-      </Container>
+  const handleCloseDialogMail = () => {
+    setDialogMail({ ...dialogMail, status: false });
+  };
 
-      <Container maxWidth="lg">
-        <Filter
-          params={{ form }}
-          methods={{ handleSelectAllComics, handleChangeForm }}
-          list={list}
-        />
+  const handleClickDialogMail = () => {
+    dispatch(sendComicsToMail(dialogMail.mail, selectedComics));
+    handleCloseDialogMail();
+  };
+
+  return (
+    <div className="page-comics">
+      <div className="logo-block">
+        <Container maxWidth="lg">
+          <img src={logo} alt="Marvel Comics" id="logo" />
+        </Container>
+      </div>
+
+      <div className="filter-block">
+        <Container maxWidth="lg">
+          <Filter params={{ form }} methods={{ handleSelectAllComics, handleChangeForm }} list={list} />
+        </Container>
+      </div>
+
+      <Container maxWidth="lg" className="block-comics-list">
         {loading ? (
-          <div style={{ textAlign: "center" }}>
+          <div className="loading">
             <CircularProgress />
           </div>
         ) : (
           <>
-            <Grid
-              container
-              spacing={2}
-              justify="space-evenly"
-              alignItems="flex-start"
-            >
+            <Grid container spacing={4} justify="space-evenly" alignItems="flex-start">
               {list.map((item) => (
                 <CardComics key={item.id} params={{ info: item }} />
               ))}
             </Grid>
-            <Fab
-              variant="extended"
-              color="primary"
-              onClick={handleClickSendComics}
-              style={{ position: "fixed", right: "20px", bottom: "20px" }}
-            >
-              {loadingButton ? (
-                <CircularProgress
-                  style={{ width: "24px", height: "24px", color: "#ffffff" }}
-                />
-              ) : (
-                <SendIcon />
-              )}
-              <Typography variant="button" style={{ marginLeft: "5px" }}>
-                To email
-              </Typography>
+            <Fab variant="extended" color="primary" onClick={handleClickSendComics} className="fab-send-to-mail">
+              {loadingButton ? <CircularProgress className="loading-button" /> : <SendIcon />}
+              <Typography variant="button">To email</Typography>
             </Fab>
             <Pagination
               params={{ total, page, limit, rangeComics }}
               methods={{ handleChangePage, handleChangeLimit }}
             />
-            <Typography variant="caption" align="center" component="p">
-              {copyright}
-            </Typography>
           </>
         )}
       </Container>
+      <footer>
+        <Container maxWidth="lg">
+          <Typography variant="caption" align="center" component="p">
+            <a href="https://www.marvel.com/comics">{copyright}</a>
+          </Typography>
+        </Container>
+      </footer>
       <Snackbar
         open={snackbar.status}
         autoHideDuration={6000}
@@ -195,6 +196,35 @@ const Comics = ({
           {snackbar.message}
         </Alert>
       </Snackbar>
+      <Dialog open={dialogMail.status} onClose={handleCloseDialogMail} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Send all comics to email</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Enter your email to receive all marked comics.</DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Email Address"
+            type="email"
+            fullWidth
+            value={dialogMail.mail}
+            onChange={(e) => setDialogMail({ ...dialogMail, mail: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              handleCloseDialogMail();
+              setLoadingButton(false);
+            }}
+            color="primary"
+          >
+            Cancel
+          </Button>
+          <Button onClick={handleClickDialogMail} color="primary">
+            Send
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
@@ -208,7 +238,6 @@ const mapStateToProps = (state) => ({
   mail: state.mail,
 });
 
-const mapDispatchToProps = (dispatch) =>
-  bindActionCreators(comicsActions, dispatch);
+const mapDispatchToProps = (dispatch) => bindActionCreators(comicsActions, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(Comics);

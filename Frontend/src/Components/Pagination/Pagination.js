@@ -1,14 +1,15 @@
 import React from "react";
 import { Grid, Typography, FormControl, Select, MenuItem } from "@material-ui/core";
 import { Pagination } from "@material-ui/lab";
+import "./Pagination.scss";
 
 const Filter = ({ params, methods }) => {
   const { total, page, limit, rangeComics } = params;
   const { handleChangePage, handleChangeLimit } = methods;
 
   return (
-    <div style={{ margin: "50px 0 25px" }}>
-      <Grid container justify="center" alignItems="center" spacing={2}>
+    <div className="pagination">
+      <Grid container justify="center" alignItems="center" spacing={4}>
         <Grid item xs={12} sm={6} md={3}>
           <Grid container justify="center" alignItems="center" spacing={2}>
             <Grid item>

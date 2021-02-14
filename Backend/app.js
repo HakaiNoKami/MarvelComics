@@ -32,6 +32,7 @@ const getHtml = (comics) => `<html>
         max-width: 350px;
         margin: 25px;
         box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.24);
+        border: 1px solid rgba(0,0,0,0.24);
         border-radius: 5px;
         float: left;
       "
@@ -49,11 +50,13 @@ const getHtml = (comics) => `<html>
           </div>
           <h2 style="color: #333333; padding: 0 16px">${comic.title}</h2>
           <p style="color: #333333; padding: 0 16px">${comic.description || "..."}</p>
-          <div>
-            <p style="color: #333333; padding: 0 16px; text-align: center"><b>Number of pages</b> <span>${
-              comic.pageCount
-            }</span></p>
-          </div>
+          ${
+            comic.pageCount > 0
+              ? `<div>
+              <p style="color: #333333; padding: 0 16px; text-align: center"><b>Number of pages</b> <span>${comic.pageCount}</span></p>
+            </div>`
+              : ``
+          }
         </a>
       </div>`,
     ""

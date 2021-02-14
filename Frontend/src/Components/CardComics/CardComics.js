@@ -16,13 +16,9 @@ import {
   Modal,
 } from "@material-ui/core";
 import ComicModel from "../ComicModel/ComicModel";
+import "./CardComics.scss";
 
-const CardComics = ({
-  params,
-  selectedComics,
-  removeSelectedComics,
-  addSelectedComics,
-}) => {
+const CardComics = ({ params, selectedComics, removeSelectedComics, addSelectedComics }) => {
   const { info } = params;
   const [check, setCheck] = useState(false);
   const [open, setOpen] = useState(false);
@@ -32,9 +28,7 @@ const CardComics = ({
   }, [info, selectedComics]);
 
   const handleChangeCheck = () => {
-    selectedComics.some((item) => item.id === info.id)
-      ? removeSelectedComics([info])
-      : addSelectedComics([info]);
+    selectedComics.some((item) => item.id === info.id) ? removeSelectedComics([info]) : addSelectedComics([info]);
     setCheck(!check);
   };
 
@@ -43,50 +37,19 @@ const CardComics = ({
   };
 
   return (
-    <Grid item xs={12} sm={6} md={3}>
+    <Grid item xs={12} sm={6} md={3} className="card-comic">
       <Card>
         <CardActionArea>
-          <CardMedia
-            style={{ height: "200px" }}
-            image={`${info.thumbnail.path}.${info.thumbnail.extension}`}
-            title={info.title}
-          />
-          <CardContent style={{ height: "170px" }}>
-            <div
-              style={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                display: "-webkit-box",
-                WebkitLineClamp: "2",
-                WebkitBoxOrient: "vertical",
-                marginBottom: "8px",
-              }}
-            >
-              <Typography
-                gutterBottom
-                variant="h5"
-                component="h2"
-                title={info.title}
-              >
+          <CardMedia image={`${info.thumbnail.path}.${info.thumbnail.extension}`} title={info.title} />
+          <CardContent>
+            <div className="title-content">
+              <Typography gutterBottom variant="h5" component="h2" title={info.title}>
                 {info.title}
               </Typography>
             </div>
             {info.description && (
-              <div
-                style={{
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  display: "-webkit-box",
-                  WebkitLineClamp: "5",
-                  WebkitBoxOrient: "vertical",
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  color="textSecondary"
-                  component="p"
-                  title={info.description}
-                >
+              <div className="description-content">
+                <Typography variant="body2" color="textSecondary" component="p" title={info.description}>
                   {info.description}
                 </Typography>
               </div>
@@ -95,13 +58,7 @@ const CardComics = ({
         </CardActionArea>
         <CardActions>
           <FormControlLabel
-            control={
-              <Checkbox
-                checked={check}
-                onChange={handleChangeCheck}
-                color="primary"
-              />
-            }
+            control={<Checkbox checked={check} onChange={handleChangeCheck} color="primary" />}
             label={
               <Typography variant="button" color="primary">
                 Select comic
@@ -131,7 +88,6 @@ const mapStateToProps = (state) => ({
   selectedComics: state.comics.selectedComics,
 });
 
-const mapDispatchToProps = (dispatch) =>
-  bindActionCreators(comicsActions, dispatch);
+const mapDispatchToProps = (dispatch) => bindActionCreators(comicsActions, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(CardComics);
