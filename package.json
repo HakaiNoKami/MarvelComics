@@ -1,7 +1,7 @@
 {
   "name": "marvel",
   "version": "0.1.0",
-  "homepage": "https://robertoachar.github.io/react-gh-pages",
+  "homepage": "https://hakainokami.github.io/MarvelComics",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.3",
