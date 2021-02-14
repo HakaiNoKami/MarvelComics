@@ -1,7 +1,7 @@
 {
-  "name": "marvel",
+  "name": "marvel-comics",
   "version": "0.1.0",
-  "homepage": "https://hakainokami.github.io/MarvelComics",
+  "homepage": "https://hakainokami.github.io/marvel-comics",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.3",
