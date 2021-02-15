@@ -3,7 +3,7 @@ import { sendMail } from "../Actions/Mail.Action";
 
 export const sendComicsToMail = (mail, comics) => {
   return (dispatch) =>
-    MailClient.post("", { mail, comics })
+    MailClient.post("/sendMail", { mail, comics })
       .then((response) => {
         if (response.data.success) dispatch(sendMail(true, "Success"));
         else dispatch(sendMail(false, response.data.message));

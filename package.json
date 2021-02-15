@@ -50,5 +50,12 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "keywords": [
+    "react",
+    "spa",
+    "marvel comics"
+  ],
+  "author": "Marcus Vinícius Pereira de Castro",
+  "license": "ISC"
 }
