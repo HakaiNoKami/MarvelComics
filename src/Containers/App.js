@@ -5,7 +5,7 @@ import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import Comics from "../Pages/Comics/Comics";
 import "./App.scss";
 
-import store from "./Store";
+import { store } from "./Store";
 
 const theme = createMuiTheme({
   palette: {

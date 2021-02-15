@@ -18,7 +18,7 @@ import {
 import ComicModel from "../ComicModel/ComicModel";
 import "./CardComics.scss";
 
-const CardComics = ({ params, selectedComics, removeSelectedComics, addSelectedComics }) => {
+const CardComics = ({ index, params, selectedComics, removeSelectedComics, addSelectedComics }) => {
   const { info } = params;
   const [check, setCheck] = useState(false);
   const [open, setOpen] = useState(false);
@@ -60,12 +60,12 @@ const CardComics = ({ params, selectedComics, removeSelectedComics, addSelectedC
           <FormControlLabel
             control={<Checkbox checked={check} onChange={handleChangeCheck} color="primary" />}
             label={
-              <Typography variant="button" color="primary">
+              <Typography variant="button" color="primary" data-testid={`check-label-${index}`}>
                 Select comic
               </Typography>
             }
           />
-          <Button size="small" color="primary" onClick={handleChangeModel}>
+          <Button size="small" color="primary" onClick={handleChangeModel} data-testid={`learn-more-${index}`}>
             Learn More
           </Button>
         </CardActions>

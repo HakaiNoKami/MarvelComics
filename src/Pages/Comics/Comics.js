@@ -160,11 +160,11 @@ const Comics = ({
         ) : (
           <>
             <Grid container spacing={4} justify="space-evenly" alignItems="flex-start">
-              {list.map((item) => (
-                <CardComics key={item.id} params={{ info: item }} />
+              {list.map((item, index) => (
+                <CardComics key={item.id} index={index} params={{ info: item }} />
               ))}
             </Grid>
-            <Fab variant="extended" color="primary" onClick={handleClickSendComics} className="fab-send-to-mail">
+            <Fab variant="extended" color="primary" onClick={handleClickSendComics} className="fab-send-to-mail" data-testid="fab-to-mail">
               {loadingButton ? <CircularProgress className="loading-button" /> : <SendIcon />}
               <Typography variant="button">To email</Typography>
             </Fab>
@@ -208,6 +208,7 @@ const Comics = ({
             fullWidth
             value={dialogMail.mail}
             onChange={(e) => setDialogMail({ ...dialogMail, mail: e.target.value })}
+            data-testid="email"
           />
         </DialogContent>
         <DialogActions>
@@ -220,7 +221,7 @@ const Comics = ({
           >
             Cancel
           </Button>
-          <Button onClick={handleClickDialogMail} color="primary">
+          <Button onClick={handleClickDialogMail} color="primary" data-testid="send-email">
             Send
           </Button>
         </DialogActions>

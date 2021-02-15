@@ -39,6 +39,7 @@ const Filter = ({ params, methods, list, selectedComics }) => {
               onChange={handleChangeForm}
               variant="outlined"
               fullWidth
+              inputProps={{ "data-testid": "title" }}
             />
           </Grid>
           <Grid item xs={12} md={2}>
@@ -104,7 +105,7 @@ const Filter = ({ params, methods, list, selectedComics }) => {
               />
             </Grid>
             <Grid item xs={12} sm={5} className="selected-total">
-              <Typography variant="body1">Total comics selected: {selectedComics.length}</Typography>
+              <Typography variant="body1">{`Total comics selected: ${selectedComics.length}`}</Typography>
             </Grid>
           </Grid>
         </Grid>
