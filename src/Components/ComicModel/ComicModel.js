@@ -15,8 +15,6 @@ const getPriceType = (type) => {
 };
 
 const ComicModel = ({ comic, close }) => {
-  console.log(comic);
-
   return (
     <Paper elevation={1} className="comic-model">
       <div className="bg-comic">
