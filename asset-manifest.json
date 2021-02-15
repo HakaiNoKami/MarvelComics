@@ -1,0 +1,24 @@
+{
+  "files": {
+    "main.css": "/MarvelComics/static/css/main.7bc24d2d.chunk.css",
+    "main.js": "/MarvelComics/static/js/main.92d79c72.chunk.js",
+    "main.js.map": "/MarvelComics/static/js/main.92d79c72.chunk.js.map",
+    "runtime-main.js": "/MarvelComics/static/js/runtime-main.77f43d19.js",
+    "runtime-main.js.map": "/MarvelComics/static/js/runtime-main.77f43d19.js.map",
+    "static/js/2.c93d4562.chunk.js": "/MarvelComics/static/js/2.c93d4562.chunk.js",
+    "static/js/2.c93d4562.chunk.js.map": "/MarvelComics/static/js/2.c93d4562.chunk.js.map",
+    "static/js/3.0975cb7a.chunk.js": "/MarvelComics/static/js/3.0975cb7a.chunk.js",
+    "static/js/3.0975cb7a.chunk.js.map": "/MarvelComics/static/js/3.0975cb7a.chunk.js.map",
+    "index.html": "/MarvelComics/index.html",
+    "static/css/main.7bc24d2d.chunk.css.map": "/MarvelComics/static/css/main.7bc24d2d.chunk.css.map",
+    "static/js/2.c93d4562.chunk.js.LICENSE.txt": "/MarvelComics/static/js/2.c93d4562.chunk.js.LICENSE.txt",
+    "static/media/Comics.scss": "/MarvelComics/static/media/bg-marvel.ac8fb718.jpg",
+    "static/media/marvel.0565fff5.svg": "/MarvelComics/static/media/marvel.0565fff5.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.77f43d19.js",
+    "static/js/2.c93d4562.chunk.js",
+    "static/css/main.7bc24d2d.chunk.css",
+    "static/js/main.92d79c72.chunk.js"
+  ]
+}
