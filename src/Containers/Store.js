@@ -7,4 +7,4 @@ import reduces from "../Reduces";
 
 const store = createStore(enableBatching(reduces), applyMiddleware(thunk));
 
-export default store;
+export { store, reduces };
